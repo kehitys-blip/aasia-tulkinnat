@@ -1,0 +1,25 @@
+name: Aasia-Tulkinnat Daily Run
+
+on:
+  schedule:
+    # Every day at 04:00 UTC = 06:00 UTC+2 (Helsinki)
+    - cron: '0 4 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  run-analysis:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Run Aasia-Tulkinnat analysis
+        run: |
+          curl -X GET https://aasia-tulkinnat-automatiikka.onrender.com/run
+        
+      - name: Sleep before retry (if needed)
+        if: failure()
+        run: sleep 30
+        
+      - name: Retry if failed
+        if: failure()
+        run: |
+          curl -X GET https://aasia-tulkinnat-automatiikka.onrender.com/run
