@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aasia-Tulkinnat API Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      padding: 12px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #1a1a1a;
+    }
+
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    input, select, textarea {
+      padding: 10px 12px;
+      border: 1px solid #d0d0d0;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    button {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #1d4ed8;
+    }
+
+    .btn-primary:disabled {
+      background: #d0d0d0;
+      cursor: not-allowed;
+      color: #999;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #2563eb;
+      border: 1px solid #2563eb;
+    }
+
+    .btn-secondary:hover {
+      background: #f0f4ff;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+
+    .success {
+      background: #dcfce7;
+      color: #166534;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+
+    .analysis-box {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 14px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      line-height: 1.7;
+      color: #1a1a1a;
+    }
+
+    .articles {
+      margin-top: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .article {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .article-title {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #1a1a1a;
+    }
+
+    .article-meta {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .article-desc {
+      color: #333;
+      font-size: 13px;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #e0e0e0;
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hidden { display: none; }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .stat {
+      flex: 1;
+      background: #f0f4ff;
+      padding: 8px;
+      border-radius: 4px;
+      text-align: center;
+      color: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌏 Aasia-Tulkinnat Demo</h1>
+
+    <div class="section">
+      <div class="form-group">
+        <label for="newsapi">NewsAPI-avain</label>
+        <input type="password" id="newsapi" placeholder="Hae osoitteesta newsapi.org">
+      </div>
+
+      <div class="form-group">
+        <label for="claude">Anthropic API-avain</label>
+        <input type="password" id="claude" placeholder="sk-ant-...">
+      </div>
+
+      <div class="form-group">
+        <label for="language">Analyysikieli</label>
+        <select id="language">
+          <option value="mandariini">Mandariini</option>
+          <option value="vietnami">Vietnami</option>
+          <option value="japani">Japani</option>
+          <option value="thai">Thai</option>
+          <option value="korealainen">Korealainen</option>
+          <option value="indonesialainen">Indonesialainen</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="query">Hakusana</label>
+        <input type="text" id="query" value="China AI policy" placeholder="esim. Southeast Asia elections">
+      </div>
+
+      <button class="btn-primary" id="analyze">🔍 Analysoi</button>
+    </div>
+
+    <div id="messages"></div>
+
+    <div id="results" class="hidden">
+      <div class="section">
+        <h2 style="font-size: 16px; margin-bottom: 12px;">Analyysi</h2>
+        <div id="analysis" class="analysis-box"></div>
+      </div>
+
+      <div class="section">
+        <button class="btn-secondary" id="toggle-articles" style="margin-bottom: 12px;">▶ Näytä uutisia</button>
+        <div id="articles" class="articles hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const analyzeBtn = document.getElementById('analyze');
+    const newsapiInput = document.getElementById('newsapi');
+    const claudeInput = document.getElementById('claude');
+    const languageSelect = document.getElementById('language');
+    const queryInput = document.getElementById('query');
+    const messagesDiv = document.getElementById('messages');
+    const resultsDiv = document.getElementById('results');
+    const analysisDiv = document.getElementById('analysis');
+    const articlesDiv = document.getElementById('articles');
+    const toggleBtn = document.getElementById('toggle-articles');
+
+    let articlesData = [];
+
+    toggleBtn.addEventListener('click', () => {
+      articlesDiv.classList.toggle('hidden');
+      toggleBtn.textContent = articlesDiv.classList.contains('hidden') ? '▶ Näytä uutisia' : '▼ Piilota uutisia';
+    });
+
+    analyzeBtn.addEventListener('click', async () => {
+      const newsApiKey = newsapiInput.value.trim();
+      const claudeKey = claudeInput.value.trim();
+      const query = queryInput.value.trim();
+      const language = languageSelect.value;
+
+      if (!newsApiKey || !claudeKey || !query) {
+        showMessage('Täytä kaikki kentät', 'error');
+        return;
+      }
+
+      analyzeBtn.disabled = true;
+      analyzeBtn.innerHTML = '<span class="loading-spinner"></span>Ladataan...';
+      messagesDiv.innerHTML = '';
+      resultsDiv.classList.add('hidden');
+
+      try {
+        // Hae uutiset NewsAPI:sta
+        const newsRes = await fetch(
+          `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&language=en&sortBy=publishedAt&pageSize=5&apiKey=${newsApiKey}`
+        );
+
+        if (!newsRes.ok) throw new Error('NewsAPI-virhe: ' + newsRes.status);
+
+        const newsData = await newsRes.json();
+        articlesData = newsData.articles || [];
+
+        if (articlesData.length === 0) {
+          showMessage('Ei uutisia löytynyt haulle: ' + query, 'error');
+          return;
+        }
+
+        showMessage(`✓ Löytyi ${articlesData.length} uutista. Claude analysoi...`, 'success');
+
+        // Muodosta teksti
+        const articlesText = articlesData.slice(0, 3)
+          .map(a => `- ${a.title}\n  Lähde: ${a.source.name}\n  ${a.description || ''}`)
+          .join('\n\n');
+
+        // Kutsu Claude APIa
+        const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': claudeKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 1200,
+            messages: [
+              {
+                role: 'user',
+                content: `Analysoi nämä Aasian uutiset kriittisesti (${language}-näkökulmasta). Kirjoita selkeästi ja jäsennellysti.\n\n${articlesText}\n\nAnna:\n1. Pääkysymys\n2. Konteksti (historiallinen/geopoliittinen)\n3. Vastakohta (kenen näkökulmasta eri väite)\n4. Episteeminen kritiikki (mitä emme tiedä)`
+              }
+            ]
+          })
+        });
+
+        if (!claudeRes.ok) {
+          const errData = await claudeRes.json();
+          throw new Error('Claude API-virhe: ' + (errData.error?.message || claudeRes.status));
+        }
+
+        const claudeData = await claudeRes.json();
+        analysisDiv.textContent = claudeData.content[0].text;
+
+        // Näytä uutiset
+        renderArticles();
+
+        resultsDiv.classList.remove('hidden');
+        messagesDiv.innerHTML = '';
+
+      } catch (err) {
+        showMessage('Virhe: ' + err.message, 'error');
+      } finally {
+        analyzeBtn.disabled = false;
+        analyzeBtn.textContent = '🔍 Analysoi';
+      }
+    });
+
+    function showMessage(msg, type) {
+      const div = document.createElement('div');
+      div.className = type;
+      div.textContent = msg;
+      messagesDiv.appendChild(div);
+    }
+
+    function renderArticles() {
+      articlesDiv.innerHTML = '';
+      articlesData.forEach((article, i) => {
+        const div = document.createElement('div');
+        div.className = 'article';
+        div.innerHTML = `
+          <div class="article-title">${article.title}</div>
+          <div class="article-meta">${article.source.name} · ${new Date(article.publishedAt).toLocaleDateString('fi-FI')}</div>
+          <div class="article-desc">${article.description || '(ei kuvausta)'}</div>
+        `;
+        articlesDiv.appendChild(div);
+      });
+      articlesDiv.classList.add('hidden');
+      toggleBtn.textContent = `▶ Näytä ${articlesData.length} uutista`;
+    }
+  </script>
+</body>
+</html>
