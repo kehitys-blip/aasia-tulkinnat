@@ -37,7 +37,7 @@ def analyze_with_claude(articles):
     ])
     
     message = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
+        model="model="claude-opus-4-1-20250805",
         max_tokens=1500,
         messages=[{
             "role": "user",
